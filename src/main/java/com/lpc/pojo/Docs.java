@@ -9,6 +9,8 @@ public class Docs {
     private String author;
     private String Url;
     private Date createdate;
+    private boolean isFolder;
+    private String parentPath;
 
     public int getId() {
         return id;
@@ -56,5 +58,24 @@ public class Docs {
 
     public void setCreatedate(Date createdate) {
         this.createdate = createdate;
+    }
+
+    public boolean isFolder() {
+        return isFolder;
+    }
+
+    public void setFolder(boolean folder) {
+        isFolder = folder;
+    }
+
+    public String getParentPath() {
+        return parentPath;
+    }
+
+    public void setParentPath(String parentPath) {
+        this.parentPath = parentPath;
+    }
+    public boolean getFolder() {
+        return isFolder;
     }
 }

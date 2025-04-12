@@ -69,11 +69,36 @@ public class HDFSService {
      * 删除
      * @param filePath
      */
-    public  void  delFile(String filePath){
+    public void delFile(String filePath) {
         try {
-            fs.delete(new Path(filePath),true);
-        }catch (Exception e){
-            System.out.println("在HDFS文件系统中删除文档发生异常"+e.toString());
+            Path path = new Path(filePath);
+            if (fs.exists(path)) {
+                boolean success = fs.delete(path, true);  // true 表示递归删除（目录也删）
+                if (!success) {
+                    System.out.println("HDFS 删除失败：" + filePath);
+                } else {
+                    System.out.println("✅ HDFS 删除成功：" + filePath);
+                }
+            } else {
+                System.out.println("⚠️ HDFS 不存在该路径：" + filePath);
+            }
+        } catch (Exception e) {
+            System.out.println("HDFS 删除异常：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 重命名文件夹
+     * @param oldPath
+     * @param newPath
+     */
+    public void renameDir(String oldPath, String newPath) {
+        try {
+            Path oldP = new Path(oldPath);
+            Path newP = new Path(newPath);
+            fs.rename(oldP, newP);
+        } catch (Exception e) {
+            System.out.println("HDFS 重命名文件夹失败: " + e.getMessage());
         }
     }
 }

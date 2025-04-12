@@ -7,6 +7,21 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%
+    String path = request.getParameter("parentPath");
+    if (path == null || path.trim().equals("")) {
+        path = "/";
+    }
+    String upPath = "/";
+    if (!path.equals("/") && path.lastIndexOf("/") > 0) {
+        upPath = path.substring(0, path.lastIndexOf("/"));
+        if (!upPath.endsWith("/")) {
+            upPath += "/";
+        }
+    }
+%>
+<%--Tomcat + JSP 编译器不支持嵌套 JSTL 函数调用--%>
+<%--<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>--%>
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
@@ -34,11 +49,18 @@
 </div>
 <div class="rightinfo">
     <div class="tools">
+        <div style="margin:10px 0;">
+            <strong>当前位置：</strong> ${currentPath}
+            <c:if test="${not empty currentPath && currentPath != '/'}">
+                <a href="search?parentPath=${upPath}">⬅ 返回上一级</a>
+            </c:if>
+        </div>
         <ul class="toolbar">
-            <li onclick="window.location.href='/upload'"><span><img src="images/t01.png"></span>添加</li>
-            <li ><span><img src="images/t02.png"></span>修改</li>
-            <li ><span><img src="images/t03.png"></span>删除</li>
+            <li onclick="openUploadModal('${currentPath}')"><span><img src="images/t01.png"></span>添加</li>
             <li ><span><img src="images/t04.png"></span>统计</li>
+            <li onclick="document.getElementById('folderModal').style.display='block'">
+                <span><img src="images/t01.png"></span>新建文件夹
+            </li>
         </ul>
 
         <ul class="toolbar1">
@@ -66,9 +88,18 @@
                 <td>${docs.type}</td>
                 <td>${docs.url}</td>
                 <td>
-                    <a href="javascript:void(0);" onclick="openEditModal(${docs.id})" class="tablelink">修改</a>&nbsp;
-                    <a href="down?filePath=${docs.url}" class="tablelink">下载</a>&nbsp;
-                    <a href="delete?id=${docs.id}&filePath=${docs.url}" class="tablelink">删除</a>
+                    <c:choose>
+                        <c:when test="${docs.folder}">
+                            <a href="search?parentPath=${docs.url}/" class="tablelink">进入</a>&nbsp;
+                            <a href="javascript:void(0);" onclick="openRenameModal(${docs.id}, '${docs.title}')" class="tablelink">修改名称</a>&nbsp;
+                            <a href="delete?id=${docs.id}&filePath=${docs.url}" class="tablelink">删除</a>
+                        </c:when>
+                        <c:otherwise>
+                            <a href="down?filePath=${docs.url}" class="tablelink">下载</a>&nbsp;
+                            <a href="javascript:void(0);" onclick="openEditModal(${docs.id})" class="tablelink">修改</a>&nbsp;
+                            <a href="delete?id=${docs.id}&filePath=${docs.url}" class="tablelink">删除</a>
+                        </c:otherwise>
+                    </c:choose>
                 </td>
             </tr>
         </c:forEach>
@@ -77,14 +108,14 @@
     <div class="pagin">
         <div class="message">共<i class="blue">${pageInfo.getTotal()}</i>条记录，当前显示第&nbsp; <i class="blue" >${pageInfo.getPages()}&nbsp;</i>页</div>
         <ul class="paginList">
-            <li class="paginItem"><a href="search?page=1">首页</a></li>
+            <li class="paginItem"><a href="search?page=1&parentPath=${currentPath}">首页</a></li>
 <%--            这里可以完善一下做一个判断等等--%>
-            <li class="paginItem"><a href="search?page=${pageInfo.pageNum-1}"><<</a> </li>
+            <li class="paginItem"><a href="search?page=${pageInfo.pageNum-1}&parentPath=${currentPath}"><<</a> </li>
             <c:forEach begin="1" end="${pageInfo.getPages()}" step="1" var="pageNo">
-                <li class="paginItem"><a href="search?page=${pageInfo.pageNum}">${pageNo}</a> </li>
+                <li class="paginItem"><a href="search?page=${pageInfo.pageNum}&parentPath=${currentPath}">${pageNo}</a> </li>
             </c:forEach>
-            <li class="paginItem"><a href="search?page=${pageInfo.pageNum+1}">>></a> </li>
-            <li class="paginItem"><a href="search?page=${pageInfo.pages}">末页</a> </li>
+            <li class="paginItem"><a href="search?page=${pageInfo.pageNum+1}&parentPath=${currentPath}">>></a> </li>
+            <li class="paginItem"><a href="search?page=${pageInfo.pages}&parentPath=${currentPath}">末页</a> </li>
 
         </ul>
     </div>
@@ -145,6 +176,94 @@
             });
     }
 </script>
+//新建文件夹
+<div id="folderModal" style="display:none; position:fixed; top:20%; left:35%; background:#fff; border:1px solid #ccc; padding:20px; z-index:9999;">
+    <h3>新建文件夹</h3>
+    <form action="createFolder" method="post">
+        文件夹名称：<input type="text" name="folderName" required /><br><br>
+        <input type="hidden" name="parentPath" value="${currentPath}" />
+        <button type="submit">创建</button>
+        <button type="button" onclick="document.getElementById('folderModal').style.display='none'">取消</button>
+    </form>
+</div>
+//重命名文件夹
+<div id="renameModal" style="display:none; position:fixed; top:25%; left:35%; background:#fff; border:1px solid #ccc; padding:20px; z-index:9999;">
+    <h3>重命名文件夹</h3>
+    <form id="renameForm">
+        <input type="hidden" name="id" id="renameId">
+        新名称：<input type="text" name="newTitle" id="renameTitle"><br><br>
+        <button type="button" onclick="submitRename()">保存</button>
+        <button type="button" onclick="closeRenameModal()">取消</button>
+    </form>
+</div>
+<script>
+    function openRenameModal(id, title) {
+        document.getElementById("renameId").value = id;
+        document.getElementById("renameTitle").value = title;
+        document.getElementById("renameModal").style.display = "block";
+    }
 
+    function closeRenameModal() {
+        document.getElementById("renameModal").style.display = "none";
+    }
+
+    function submitRename() {
+        const formData = new URLSearchParams(new FormData(document.getElementById("renameForm")));
+
+        fetch("renameFolder", {
+            method: "POST",
+            body: formData,
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert("修改成功！");
+                    location.reload();
+                } else {
+                    alert("修改失败！");
+                }
+            });
+    }
+</script>
+//添加弹窗
+<div id="uploadModal" class="tip" style="display:none;">
+    <div class="tiptop">
+        <span>上传文件</span>
+        <a onclick="closeUploadModal()"></a>
+    </div>
+    <div class="tipinfo">
+        <form id="uploadForm" method="post" enctype="multipart/form-data" action="upload">
+            <input type="hidden" name="parentPath" id="modalParentPath">
+            <ul class="forminfo">
+                <li>
+                    <label>标题：</label>
+                    <input type="text" name="title" class="dfinput" required>
+                </li>
+                <li>
+                    <label>类型：</label>
+                    <input type="text" name="type" class="dfinput" required>
+                </li>
+                <li>
+                    <label>文件：</label>
+                    <input type="file" name="myfile" required>
+                </li>
+                <li>
+                    <input type="submit" value="上传" class="btn">
+                    <input type="button" value="取消" class="btn" onclick="closeUploadModal()">
+                </li>
+            </ul>
+        </form>
+    </div>
+</div>
+<script>
+    function openUploadModal(currentPath) {
+        document.getElementById("uploadModal").style.display = "block";
+        document.getElementById("modalParentPath").value = currentPath;
+    }
+
+    function closeUploadModal() {
+        document.getElementById("uploadModal").style.display = "none";
+    }
+</script>
 </body>
 </html>

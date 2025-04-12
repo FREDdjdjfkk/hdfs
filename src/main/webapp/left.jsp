@@ -48,7 +48,7 @@
         </div>
         <ul class="menuson">
             <li><cite></cite><a href="search" target="rightFrame">我的文档</a><i></i></li>
-            <li><cite></cite><a href="upload.jsp" target="rightFrame">文档上传</a><i></i></li>
+            <li><cite></cite><a href="toUpload" target="rightFrame">文档上传</a><i></i></li>
             <li><cite></cite><a href="dataview.jsp" target="rightFrame">下载分析</a><i></i></li>
 
         </ul>
