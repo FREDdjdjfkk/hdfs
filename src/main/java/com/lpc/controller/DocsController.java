@@ -7,6 +7,7 @@ import com.lpc.pojo.Docs;
 import com.lpc.service.DocsService;
 import com.lpc.service.DownlogService;
 import com.lpc.service.HDFSService;
+import com.lpc.util.EncryptionUtil;
 import com.lpc.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -43,16 +44,18 @@ public class DocsController {
         String account=(String) session.getAttribute("account");
         //获取附件文件名称
         String filename=multipartFile.getOriginalFilename();
+        String encryptedFilename = filename + ".enc";
         //把附件文档上传到HDFS文件系统
         try {
             InputStream in=multipartFile.getInputStream();
-            hdfsService.upload("/"+account+"/"+filename,in);
+            InputStream encrypted = EncryptionUtil.encrypt(in);
+            hdfsService.upload("/" + account + "/" + encryptedFilename, encrypted);
         }catch (Exception e){
             System.out.println("附件文档上传到HDFS文件系统时发生异常"+e.toString());
         }
 
         //把记录信息写入mysql
-        docsService.insertDocs(title,type,"/"+account+"/"+filename,account);
+        docsService.insertDocs(title, type, "/" + account + "/" + encryptedFilename, account);
 
         return "search";
     }
@@ -99,13 +102,17 @@ public class DocsController {
     public void down(String filePath, HttpServletResponse response,HttpSession session)  {
     //1.首先得到一个输入流
         InputStream in= hdfsService.down(filePath);
+
     //2.分批次读取输入流
         try {
-            byte[] b=new byte[in.available()];
+            InputStream decrypted = EncryptionUtil.decrypt(in);  // ✅ 解密流
+            byte[] b =  EncryptionUtil.readAllBytes(decrypted);
             //3获取文件的真实名字
-            String fn=filePath.substring(filePath.lastIndexOf("/")+1);
+            String fn = filePath.substring(filePath.lastIndexOf("/") + 1);
+            // 移除 .enc 后缀
+            String downloadName = fn.endsWith(".enc") ? fn.substring(0, fn.length() - 4) : fn;
             //4处理中文乱码
-            String nfn=new String(fn.getBytes("UTF-8"),"ISO-8859-1");
+            String nfn = new String(downloadName.getBytes("UTF-8"), "ISO-8859-1");
             response.setHeader("Content-Disposition","attachment;filename="+nfn);
             //5.生成输出流
             ServletOutputStream out=response.getOutputStream();
