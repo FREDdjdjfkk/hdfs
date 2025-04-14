@@ -11,18 +11,8 @@
     <meta charset="UTF-8">
     <title>管理员后台管理系统</title>
     <!-- 引入公共样式 -->
-    <link rel="stylesheet" type="text/css" href="css/style.css">
-    <style> /* 针对管理员页面的自定义样式 */
-    .admin-header { background-color: #3d96c9;
-                    color: #fff;
-                    padding: 15px;
-                    text-align: center; }
-    .admin-nav { background-color: #f5f5f5; padding: 10px; }
-    .admin-nav ul { list-style: none; margin: 0; padding: 0; }
-    .admin-nav ul li { display: inline-block; margin-right: 20px; }
-    .admin-nav ul li a { text-decoration: none; color: #333; font-weight: bold; }
-    .admin-content { padding: 20px; } .admin-footer { background-color: #ddd; text-align: center; padding: 10px; margin-top: 20px; }
-    </style>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css?v=1">
+
 </head>
 <body>
 <!-- 页面头部 -->

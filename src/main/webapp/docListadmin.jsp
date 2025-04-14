@@ -12,7 +12,7 @@
 <head>
     <meta charset="UTF-8">
     <title>文档管理</title>
-    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css?v=1">
     <script type="text/javascript" src="js/jquery.js"></script>
     <style>
         table { border-collapse: collapse; width: 100%; margin-top: 20px; }
@@ -24,6 +24,15 @@
 </head>
 <body>
 <h1>文档管理</h1>
+<!-- 导航菜单 -->
+<div class="admin-nav">
+    <ul>
+        <li><a href="${pageContext.request.contextPath}/list">用户管理</a></li>
+        <li><a href="show">文档管理</a></li>
+        <li><a href="downlogList.jsp">下载日志</a></li>
+        <li><a href="logout">退出登录</a></li>
+    </ul>
+</div>
 <table>
     <tr>
         <th>序号</th><th>ID</th> <th>标题</th> <th>类型</th><th>地址</th> <th>作者</th> <th>创建日期</th> <th>操作</th>

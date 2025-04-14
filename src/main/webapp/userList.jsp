@@ -13,12 +13,20 @@
 <head>
     <title>用户管理</title>
     <meta charset="UTF-8"/>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css?v=1">
 </head>
 <body>
 
 <h2>用户列表</h2>
 <!-- 用户列表表格 -->
+<div class="admin-nav">
+    <ul>
+        <li><a href="${pageContext.request.contextPath}/list">用户管理</a></li>
+        <li><a href="show">文档管理</a></li>
+        <li><a href="downlogList.jsp">下载日志</a></li>
+        <li><a href="logout">退出登录</a></li>
+    </ul>
+</div>
 <table class="imgtable">
     <tr>
         <th>ID</th>

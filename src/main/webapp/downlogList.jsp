@@ -3,6 +3,7 @@
 <head>
     <title>下载日志</title>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css?v=1">
     <style>
         table {
             border-collapse: collapse;
@@ -27,6 +28,15 @@
     </style>
 </head>
 <body>
+<h1>下载日志</h1>
+<div class="admin-nav">
+    <ul>
+        <li><a href="${pageContext.request.contextPath}/list">用户管理</a></li>
+        <li><a href="show">文档管理</a></li>
+        <li><a href="downlogList.jsp">下载日志</a></li>
+        <li><a href="logout">退出登录</a></li>
+    </ul>
+</div>
 <table>
     <caption>下载日志列表</caption>
     <thead>

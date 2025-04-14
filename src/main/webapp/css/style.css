@@ -317,3 +317,15 @@ h2{font-weight:normal;}
 .seachform li label{padding-right:10px; float:left; line-height:32px;}
 .scinput{width:150px; height:32px; line-height:32px; border-top:solid 1px #a7b5bc; border-left:solid 1px #a7b5bc; border-right:solid 1px #ced9df; border-bottom:solid 1px #ced9df; background:url(../images/inputbg.gif) repeat-x; text-indent:10px;}
 .scbtn{width:85px;height:35px; background:url(../images/btnbg.png) no-repeat center; font-size:14px;font-weight:bold;color:#fff; cursor:pointer;border-radius:3px; behavior:url(../js/pie.htc);}
+
+
+/*admin*/
+.admin-header { background-color: #3d96c9;
+    color: #fff;
+    padding: 15px;
+    text-align: center; }
+.admin-nav { background-color: #f5f5f5; padding: 10px; }
+.admin-nav ul { list-style: none; margin: 0; padding: 0; }
+.admin-nav ul li { display: inline-block; margin-right: 20px; }
+.admin-nav ul li a { text-decoration: none; color: #333; font-weight: bold; }
+.admin-content { padding: 20px; } .admin-footer { background-color: #ddd; text-align: center; padding: 10px; margin-top: 20px;}
